@@ -77,6 +77,7 @@ dependencies {
     //retrofit
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
+    implementation(libs.logging.interceptor)
 
     //room
     implementation (libs.androidx.room.runtime)
