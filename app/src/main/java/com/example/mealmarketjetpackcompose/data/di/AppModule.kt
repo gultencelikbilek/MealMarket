@@ -19,13 +19,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder().build()
+    }
 
     @Provides
     @Singleton
     fun providesRetrofit(@ApplicationContext context: Context): ApiService =
         Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
+            .client(provideOkHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
