@@ -105,4 +105,8 @@ dependencies {
 
     implementation (libs.androidx.swiperefreshlayout)
     implementation (libs.accompanist.swiperefresh) // Kütüphane versiyonunu kontrol edin
+
+    //coil
+    implementation(libs.coil.compose)
+
 }

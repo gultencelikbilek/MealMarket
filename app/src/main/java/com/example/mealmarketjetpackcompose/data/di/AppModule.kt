@@ -1,7 +1,10 @@
 package com.example.mealmarketjetpackcompose.data.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.mealmarketjetpackcompose.data.Constants
+import com.example.mealmarketjetpackcompose.data.db.FavoriteDao
+import com.example.mealmarketjetpackcompose.data.db.FavoriteDatabase
 import com.example.mealmarketjetpackcompose.data.di.repoimpl.MealRepositoryImpl
 import com.example.mealmarketjetpackcompose.data.network.ApiService
 import com.example.mealmarketjetpackcompose.domain.repo.MealRepository
@@ -34,6 +37,19 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
+
+
+    @Provides
+    @Singleton
+    fun provideRoom(@ApplicationContext context: Context): FavoriteDatabase =
+          Room.databaseBuilder(
+            context,
+            FavoriteDatabase::class.java,
+            "favorite_db"
+        ).build()
+
+
+
 
     @Provides
     @Singleton

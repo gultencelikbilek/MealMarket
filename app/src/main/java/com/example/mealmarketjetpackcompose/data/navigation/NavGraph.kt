@@ -33,7 +33,7 @@ sealed class BottomNavItem(
     var icon: Int
 ) {
     data object Home : BottomNavItem("Home", R.drawable.home_full)
-    data object Favorite : BottomNavItem("Favorite", R.drawable.like)
+    data object Favorite : BottomNavItem("Favorite", R.drawable.like_full)
     data object Cart : BottomNavItem("Cart", R.drawable.cart)
 }
 @Composable
