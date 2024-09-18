@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.internal.toImmutableMap
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,8 +41,9 @@ class HomeViewModel @Inject constructor(
     private var _itemCount = MutableStateFlow(0)
     val itemCount: StateFlow<Int> = _itemCount
 
-    private val _favoriteMeals = MutableStateFlow<Map<String, Boolean>>(emptyMap()) // Yemek id'lerine göre favori durumlarını tutar
-    val favoriteMeals: StateFlow<Map<String, Boolean>> = _favoriteMeals.asStateFlow()
+    // Favori yemek ID'lerini tutan MutableState
+    private val _favoriteMeals = mutableStateOf<List<Int>>(emptyList())
+    val favoriteMeals: State<List<Int>> get() = _favoriteMeals
 
 
     fun cartItemCount() = viewModelScope.launch {
@@ -76,24 +78,23 @@ class HomeViewModel @Inject constructor(
 
     fun getAllMeal() = viewModelScope.launch {
         val favorites = getAllFavoriteUseCase.invoke()
-        _favoriteMeals.value = favorites.associate { it.yemek_id to true }
+        _favoriteMeals.value = favorites.map { it.yemek_id.toInt() }  // Favori yemek ID'lerini liste olarak al
     }
 
     fun updateFavoriteMealList(yemekler: Yemekler) = viewModelScope.launch {
-        val result = getByNameFavoriteUseCase.invoke(yemekler.yemek_adi)
-        if (result == null){
-            insertFavoriteUseCase.invoke(yemekler)
-        }else{
-            deleteFavoriteUseCase.invoke(yemekler)
+        val currentList = _favoriteMeals.value.toMutableList()
+        if (currentList.contains(yemekler.yemek_id.toInt())) {
+            currentList.remove(yemekler.yemek_id.toInt())  // Zaten varsa çıkarıyoruz
+        } else {
+            currentList.add(yemekler.yemek_id.toInt())  // Yoksa ekliyoruz
         }
-        getAllMeal()
+        _favoriteMeals.value = currentList  // Listeyi güncelliyoruz
     }
     // Bir yemeğin favori olup olmadığını kontrol et
     fun isFavorite(mealId : Int) : Boolean {
-       return _favoriteMeals.value[mealId.toString()] ?: false
+       return _favoriteMeals.value.contains(mealId)
     }
 }
-
 
 
 data class MealState(

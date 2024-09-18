@@ -23,6 +23,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,8 +61,8 @@ fun HomeMealMarketCardComponent(yemekler: Yemekler, homeViewModel: HomeViewModel
             verticalArrangement = Arrangement.Center
         ) {
             LikeButton(
-                isLiked = isLiked,
-                onLikeClick = {
+                initialIsLiked = isLiked,
+                onLikeClick = { updatedIsLiked ->
                     homeViewModel.updateFavoriteMealList(yemekler)
                 }
             )
@@ -70,13 +75,14 @@ fun HomeMealMarketCardComponent(yemekler: Yemekler, homeViewModel: HomeViewModel
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartIconWithBadge(cartItemCount: Int) {
     BadgedBox(
-        badge ={
-            if (cartItemCount > 0){
-                Badge{
+        badge = {
+            if (cartItemCount > 0) {
+                Badge {
                     Text(text = "$cartItemCount")
                 }
             }
@@ -90,6 +96,7 @@ fun CartIconWithBadge(cartItemCount: Int) {
         modifier = Modifier.size(24.dp)
     )
 }
+
 @Composable
 fun MealPrice(yemekFiyat: String) {
 
@@ -98,12 +105,12 @@ fun MealPrice(yemekFiyat: String) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text =yemekFiyat,
-            modifier = Modifier . padding (start = 10.dp, top = 16.dp),
-        style = TextStyle(
-            fontSize = MaterialTheme.typography.titleSmall.fontSize,
-            color = Color.Gray
-        )
+            text = yemekFiyat,
+            modifier = Modifier.padding(start = 10.dp, top = 16.dp),
+            style = TextStyle(
+                fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                color = Color.Gray
+            )
         )
         IconButton(
             onClick = { /*TODO*/ }
@@ -142,25 +149,32 @@ fun MealImage(yemekResimAdi: String) {
 
 @Composable
 fun LikeButton(
-    isLiked: Boolean, // Bu dışarıdan gelen durum
-    onLikeClick: () -> Unit // Tıklanma işlemi
+    initialIsLiked: Boolean,
+    onLikeClick: (Boolean) -> Unit
 ) {
-    // `isLiked` durumuna göre icon değişir
+    var isLiked by remember { mutableStateOf(initialIsLiked) }
+
+    // `LaunchedEffect` ile `initialIsLiked` değiştiğinde `isLiked`'ı güncelle
+    LaunchedEffect(initialIsLiked) {
+        isLiked = initialIsLiked
+    }
     val icon = if (isLiked) R.drawable.like_full else R.drawable.like
 
-    Row(
+
+    IconButton(
+        onClick = {
+            onLikeClick.invoke(isLiked)
+            isLiked = !isLiked
+        },
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.End
+            .size(30.dp)
+            .padding(start = 20.dp, top = 4.dp)
     ) {
         Icon(
             painter = painterResource(id = icon),
-            contentDescription = "Like Icon",
-            modifier = Modifier
-                .size(24.dp)
-                .clickable { onLikeClick.invoke() } // Tıklama etkinliği
+            contentDescription = "Like Icon"
         )
     }
 }
+
 
